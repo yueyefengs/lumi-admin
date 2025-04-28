@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 小智管理系统 (lumi-admin)
 
-## Getting Started
+使用Next.js 14全栈框架重构的小智ESP32管理系统，整合了原有的manager-web和manager-api功能。
 
-First, run the development server:
+## 技术栈
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **前端**: React 18 + Ant Design + TailwindCSS
+- **后端**: Next.js API Routes
+- **数据库**: MySQL (Prisma ORM)
+- **缓存**: Redis
+- **认证**: NextAuth.js
+- **部署**: Docker
+
+## 功能特性
+
+- 用户认证与权限管理
+- 设备管理与监控
+- 模型配置(LLM、TTS)
+- 固件OTA升级
+- 系统配置管理
+
+## 快速开始
+
+### 开发环境
+
+1. 克隆仓库
+   ```bash
+   git clone https://github.com/yourusername/lumi-admin.git
+   cd lumi-admin
+   ```
+
+2. 安装依赖
+   ```bash
+   npm install
+   ```
+
+3. 配置环境变量
+   复制`.env.example`为`.env.local`，并配置必要的环境变量
+
+4. 启动开发服务器
+   ```bash
+   npm run dev
+   ```
+
+### 使用Docker部署
+
+1. 构建Docker镜像并启动服务
+   ```bash
+   docker-compose up -d
+   ```
+
+2. 初始化数据库
+   ```bash
+   docker-compose exec lumi-admin npx prisma migrate deploy
+   ```
+
+3. 访问管理系统
+   http://localhost:8002/xiaozhi
+
+## 项目结构
+
+```
+lumi-admin/
+├── app/                # Next.js App Router
+│   ├── (auth)/         # 认证相关页面
+│   ├── (dashboard)/    # 仪表盘页面
+│   ├── api/            # API路由
+│   └── ...
+├── components/         # 可复用组件
+├── lib/                # 工具库
+├── prisma/             # Prisma配置和迁移
+└── public/             # 静态资源
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## API文档
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+启动后访问：http://localhost:8002/xiaozhi/api-docs
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 接口路径
 
-## Learn More
+与原有系统保持一致，所有页面和API访问路径均带有`/xiaozhi`前缀，如：
+- 管理界面: http://localhost:8002/xiaozhi
+- API接口: http://localhost:8002/xiaozhi/api/...
 
-To learn more about Next.js, take a look at the following resources:
+## 许可证
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
