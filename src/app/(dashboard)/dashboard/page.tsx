@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Card, Col, Row, Statistic } from 'antd';
 import {
   ApiOutlined,
@@ -8,19 +10,26 @@ import {
 import prisma from '@/lib/prisma';
 
 async function getStatistics() {
-  const deviceCount = await prisma.device.count();
-  const onlineDeviceCount = await prisma.device.count({
-    where: { status: 1 }
-  });
-  const configCount = await prisma.config.count();
-  const firmwareCount = await prisma.firmware.count();
+  try { 
+    const deviceCount = await prisma.device.count();
+    const onlineDeviceCount = await prisma.device.count({
+      where: { status: 1 }
+    });
+    const configCount = await prisma.config.count();
+    const firmwareCount = await prisma.firmware.count();
 
-  return {
-    deviceCount,
-    onlineDeviceCount,
-    configCount,
-    firmwareCount
-  };
+    return {
+      deviceCount,
+      onlineDeviceCount,
+      configCount,
+      firmwareCount
+    };
+  }catch (error) {
+    console.error('获取统计数据失败:', error);
+    // 构建时数据库不可用则返回默认值
+    return { props: { count: 0 } };
+  }
+    
 }
 
 export default async function DashboardPage() {

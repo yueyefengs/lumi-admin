@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from 'react';
 import { Table, Card, Button, Badge, Input, Form, Upload, Space, message } from 'antd';
 import { UploadOutlined, CloudUploadOutlined, SearchOutlined } from '@ant-design/icons';

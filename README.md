@@ -1,87 +1,151 @@
-# 小智管理系统 (lumi-admin)
+# 小智管理系统 (Lumi Admin)
 
-使用Next.js 14全栈框架重构的小智ESP32管理系统，整合了原有的manager-web和manager-api功能。
-
-## 技术栈
-
-- **前端**: React 18 + Ant Design + TailwindCSS
-- **后端**: Next.js API Routes
-- **数据库**: MySQL (Prisma ORM)
-- **缓存**: Redis
-- **认证**: NextAuth.js
-- **部署**: Docker
+基于Next.js重构的小智管理系统，提供了模型管理、角色配置、设备管理等功能。
 
 ## 功能特性
 
-- 用户认证与权限管理
-- 设备管理与监控
-- 模型配置(LLM、TTS)
-- 固件OTA升级
-- 系统配置管理
+- 用户认证与管理
+- 模型配置管理 (LLM、TTS、ASR等)
+- 角色配置管理
+- 设备管理
+- 系统参数管理
+- 音色管理
 
-## 快速开始
+## 技术栈
 
-### 开发环境
+- **前端**: Next.js 14, React 18, Ant Design 5
+- **后端**: Next.js API Routes
+- **数据库**: MySQL 8
+- **缓存**: Redis
+- **部署**: Docker, Docker Compose
+
+## 开发环境搭建
+
+### 前提条件
+
+- Node.js 18+
+- npm 或 yarn
+- MySQL 8
+- Redis (可选，用于会话存储)
+
+### 安装步骤
 
 1. 克隆仓库
-   ```bash
-   git clone https://github.com/yourusername/lumi-admin.git
-   cd lumi-admin
-   ```
+
+```bash
+git clone https://github.com/yourusername/lumi-admin.git
+cd lumi-admin
+```
 
 2. 安装依赖
-   ```bash
-   npm install
-   ```
+
+```bash
+npm install
+# 或
+yarn install
+```
 
 3. 配置环境变量
-   复制`.env.example`为`.env.local`，并配置必要的环境变量
 
-4. 启动开发服务器
-   ```bash
-   npm run dev
-   ```
-
-### 使用Docker部署
-
-1. 构建Docker镜像并启动服务
-   ```bash
-   docker-compose up -d
-   ```
-
-2. 初始化数据库
-   ```bash
-   docker-compose exec lumi-admin npx prisma migrate deploy
-   ```
-
-3. 访问管理系统
-   http://localhost:8002/xiaozhi
-
-## 项目结构
+创建`.env.local`文件，添加必要的环境变量：
 
 ```
-lumi-admin/
-├── app/                # Next.js App Router
-│   ├── (auth)/         # 认证相关页面
-│   ├── (dashboard)/    # 仪表盘页面
-│   ├── api/            # API路由
-│   └── ...
-├── components/         # 可复用组件
-├── lib/                # 工具库
-├── prisma/             # Prisma配置和迁移
-└── public/             # 静态资源
+# 数据库配置
+DATABASE_URL="mysql://username:password@localhost:3306/lumi_admin"
+
+# NextAuth配置
+NEXTAUTH_URL=http://localhost:8002
+NEXTAUTH_SECRET=your-nextauth-secret-key-change-me
+
+# Redis配置 (可选)
+REDIS_URL=redis://localhost:6379
 ```
 
-## API文档
+4. 初始化数据库
 
-启动后访问：http://localhost:8002/xiaozhi/api-docs
+```bash
+npx prisma db push
+npx prisma generate
+npm run prisma:seed
+```
 
-## 接口路径
+5. 启动开发服务器
 
-与原有系统保持一致，所有页面和API访问路径均带有`/xiaozhi`前缀，如：
-- 管理界面: http://localhost:8002/xiaozhi
-- API接口: http://localhost:8002/xiaozhi/api/...
+```bash
+npm run dev
+```
+
+服务器将在 http://localhost:8002 启动。
+
+## 使用Docker部署
+
+1. 构建和启动容器
+
+```bash
+docker-compose up -d
+```
+
+系统将在 http://localhost:8002 可用。
+
+2. 查看日志
+
+```bash
+docker-compose logs -f
+```
+
+3. 停止服务
+
+```bash
+docker-compose down
+```
+
+## API接口
+
+系统提供以下主要API接口：
+
+### 用户相关
+
+- `GET/POST /api/user/captcha` - 获取验证码
+- `GET/POST /api/user/login` - 用户登录
+- `POST /api/user/register` - 用户注册
+- `GET/PUT /api/user/info` - 获取/更新用户信息
+
+### 模型相关
+
+- `GET /api/models/names` - 获取模型名称列表
+- `GET /api/models/list` - 获取模型列表
+- `GET/PUT/DELETE /api/models/{id}` - 获取/更新/删除模型详情
+- `GET/POST /api/models/{modelId}/voices` - 获取/添加模型音色
+
+### 角色相关
+
+- `GET /api/agent/list` - 获取角色列表
+- `GET /api/agent/all` - 获取所有角色
+- `GET/PUT/DELETE /api/agent/{id}` - 获取/更新/删除角色详情
+- `GET/POST /api/agent/template` - 获取/创建角色模板
+
+### 设备相关
+
+- `POST /api/device/register` - 设备注册
+- `GET /api/device/bind/{agentId}/{deviceCode}` - 绑定设备
+- `POST /api/device/unbind` - 解绑设备
+
+### 系统管理
+
+- `GET/POST /api/admin/params/page` - 获取/更新参数列表
+- `GET/POST /api/admin/users` - 获取/更新用户列表
+
+### 配置相关
+
+- `GET /api/config/server-base` - 服务器基础配置
+- `GET /api/config/agent-models` - 获取Agent模型配置
+
+## 账户信息
+
+默认管理员账户：
+- 用户名：admin
+- 密码：admin123
 
 ## 许可证
 
-MIT
+[MIT](LICENSE)

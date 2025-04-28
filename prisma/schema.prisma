@@ -37,6 +37,8 @@ model Device {
   lastOnline  DateTime? @map("last_online")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
+  agentId     Int?      @map("agent_id")
+  agent       Agent?    @relation(fields: [agentId], references: [id])
 
   @@map("devices")
 }
@@ -77,4 +79,80 @@ model OperationLog {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("operation_logs")
+}
+
+// AI模型配置表
+model Model {
+  id          Int       @id @default(autoincrement())
+  name        String    
+  type        String    // LLM, TTS, ASR
+  provider    String    // 提供商(如智谱AI等)
+  apiKey      String?   @map("api_key")
+  endpoint    String?
+  parameters  String?   @db.Text // JSON格式的参数
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  voices      Voice[]   // 关联音色(仅TTS模型)
+  agentModels AgentModel[]
+
+  @@map("models")
+}
+
+// 音色表
+model Voice {
+  id        Int      @id @default(autoincrement())
+  name      String
+  code      String   // 音色代码
+  gender    String?  // 性别特征
+  modelId   Int      @map("model_id")
+  model     Model    @relation(fields: [modelId], references: [id])
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("voices")
+}
+
+// 角色表
+model Agent {
+  id          Int          @id @default(autoincrement())
+  name        String
+  avatar      String?      // 头像URL
+  description String?      @db.Text
+  systemPrompt String?     @db.Text @map("system_prompt")
+  isActive    Boolean      @default(true) @map("is_active")
+  createdAt   DateTime     @default(now()) @map("created_at") 
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  devices     Device[]
+  agentModels AgentModel[]
+
+  @@map("agents")
+}
+
+// 角色-模型关联表
+model AgentModel {
+  id        Int      @id @default(autoincrement())
+  agentId   Int      @map("agent_id")
+  modelId   Int      @map("model_id")
+  agent     Agent    @relation(fields: [agentId], references: [id])
+  model     Model    @relation(fields: [modelId], references: [id])
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([agentId, modelId])
+  @@map("agent_models")
+}
+
+// 角色模板表
+model AgentTemplate {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?   @db.Text
+  template    String    @db.Text // JSON格式的模板内容
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("agent_templates")
 }

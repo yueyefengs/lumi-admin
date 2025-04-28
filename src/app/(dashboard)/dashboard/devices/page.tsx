@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from 'react';
 import { Table, Tag, Card, Button } from 'antd';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';

@@ -1,43 +1,66 @@
-version: '3'
+version: '3.8'
 
 services:
-  lumi-admin:
-    build: .
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lumi-admin
+    restart: always
     ports:
       - "8002:8002"
     environment:
-      - DATABASE_URL=mysql://root:root123@mysql:3306/xiaozhi
-      - REDIS_URL=redis://redis:6379
-      - NEXTAUTH_SECRET=d085a3a4-020c-4a29-b09b-8ba04c9738ff
-      - NEXTAUTH_URL=http://localhost:8002/xiaozhi
       - NODE_ENV=production
-    volumes:
-      - ./data:/app/data
+      - DATABASE_URL=mysql://lumi:lumipassword@mysql:3306/lumi_admin
+      - NEXTAUTH_URL=http://localhost:8002/xiaozhi
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - lumi-network  # 显式定义网络
 
   mysql:
-    image: mysql:8
-    command: --default-authentication-plugin=mysql_native_password
+    image: mysql:8.0
+    container_name: lumi-mysql
     restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=root123
-      - MYSQL_DATABASE=xiaozhi
     ports:
       - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=lumi_admin
+      - MYSQL_USER=lumi
+      - MYSQL_PASSWORD=lumipassword
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
-  
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "lumi", "-plumipassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - lumi-network  # 显式定义网络
   redis:
-    image: redis:alpine
+    image: redis:6.2-alpine
+    container_name: lumi-redis
     restart: always
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - lumi-network
 
 volumes:
   mysql_data:
   redis_data: 
+networks:
+  lumi-network:  # 自定义网络提升服务发现稳定性
+    driver: bridge
